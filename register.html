@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sign up </title>
+    <!-- bootstrap css -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- crypto js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<style>
+    body {
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        margin: 0px;
+    }
+</style>
+
+<body>
+    <!-- form starts here -->
+    <div class="mb-5">
+        <h3 class="mb-3">sign up</h3>
+        <input type="text" placeholder="Full Name" id="nameInp" class="form-control mb-3">
+        <input type="text" placeholder="Email" id="emailInp" class="form-control mb-3">
+        <input type="text" placeholder="Username" id="userInp" class="form-control mb-3">
+        <input type="password" placeholder="password" id="passInp" class="form-control mb-3">
+        <button type="button" id="sub_btn" class="btn w-100 btn-outline-primary mb-3">Sign Up</button>
+        <a href="login.html" class="badge bg-secondary py-1 w-100">Already Have an Account? </a>
+    </div>
+    <!-- form ends here -->
+
+    <script type="module">
+        // firebaseConfig
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMpmDxO1xMqtj1yZyjvR_OveLoX3ngDeA",
+            authDomain: "programming-mentor-fd848.firebaseapp.com",
+            databaseURL: "https://programming-mentor-fd848-default-rtdb.firebaseio.com",
+            projectId: "programming-mentor-fd848",
+            storageBucket: "programming-mentor-fd848.appspot.com",
+            messagingSenderId: "990674254619",
+            appId: "1:990674254619:web:a385eb8f4907a78c65f1be",
+            measurementId: "G-JGDMQ05FK6"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        import { getDatabase, ref, set, child, get }
+            from "https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js"
+
+        const db = getDatabase();
+
+        // THE REFRENCES
+
+        const name = document.getElementById('nameInp');
+        const email = document.getElementById('emailInp');
+        const username = document.getElementById('userInp');
+        const pass = document.getElementById('passInp');
+        const submit = document.getElementById('sub_btn');
+
+        // validation
+
+        function isEmptyOrSpaces(str) {
+            return str === null || str.match(/^ *$/) !== null;
+        }
+
+        function validation() {
+            let nameregex = /^[a-zA-Z\s5*]+$/;
+            let emailregex = /^[a-zA-Z0-9]+@(gmail|yahoo|outlook)\.com$/;
+            let userregex = /^[a-zA-Z0-9]{5,}$/;
+
+            if (isEmptyOrSpaces(name.value) || isEmptyOrSpaces(email.value) || isEmptyOrSpaces(username.value) || isEmptyOrSpaces(pass.value)) {
+                alert('you cannot left any field empty');
+                return false;
+            }
+
+            if (!nameregex.test(name.value)) {
+                alert("the name should only contain albhabet !");
+                return false;
+
+            }
+            if (!emailregex.test(email.value)) {
+                alert("enter a valid email");
+                return false;
+
+            }
+            if (!userregex.test(username.value)) {
+                alert("username can only be alphanumeric\n-username must be atleast 5 chartacters");
+                return false;
+
+            }
+
+            return true;
+        }
+
+        // register user to database
+        function RegisterUser() {
+            if (!validation()) {
+                return;
+            };
+
+            const dbRef = ref(db);
+            get(child(dbRef, "UsersList/" + username.value)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    alert("user already registered");
+                }
+                else {
+                    set(ref(db, "UsersList/" + username.value),
+                        {
+                            fullname: name.value,
+                            email: email.value,
+                            username: username.value,
+                            password: encPass()
+                        })
+                        .then(() => {
+                            alert("user added successfully");
+                        })
+                        .catch((error) => {
+                            alert("error" + error);
+
+                        })
+                }
+            });
+        }
+
+        //encryption
+        function encPass() {
+            var pass12 = CryptoJS.AES.encrypt(pass.value, pass.value);
+            return pass12.toString();
+        }
+        // Assign the user to the database
+        submit.addEventListener('click', RegisterUser);
+    </script>
+</body>
+
+</html>
